@@ -1,0 +1,8 @@
+// G:/msms/frontend/src/api/suppliers.js
+import api from './axios'
+
+export const getSuppliers = (params) => api.get('/suppliers/', { params })
+export const getSupplier = (id) => api.get(`/suppliers/${id}/`)
+export const createSupplier = (data) => api.post('/suppliers/', data)
+export const updateSupplier = (id, data) => api.patch(`/suppliers/${id}/`, data)
+export const deleteSupplier = (id) => api.delete(`/suppliers/${id}/`)

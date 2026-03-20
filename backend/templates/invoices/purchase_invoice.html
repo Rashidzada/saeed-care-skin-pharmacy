@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Purchase Order {{ purchase.po_number }}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; font-size: 13px; color: #222; background: #fff; padding: 30px; }
+
+    /* Header */
+    .header-table { width: 100%; border-bottom: 2px solid #059669; padding-bottom: 14px; margin-bottom: 20px; }
+    .store-name { font-size: 22px; color: #059669; font-weight: bold; }
+    .store-sub { color: #555; font-size: 12px; margin-top: 3px; }
+    .po-label { font-size: 18px; color: #059669; font-weight: bold; text-align: right; }
+    .po-meta { font-size: 12px; color: #555; text-align: right; margin-top: 3px; }
+
+    /* Info boxes */
+    .info-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px; width: 48%; vertical-align: top; }
+    .info-box-label { font-size: 10px; text-transform: uppercase; color: #888; margin-bottom: 5px; }
+    .info-box-name { font-size: 14px; font-weight: bold; color: #1a1a1a; }
+    .info-box-sub { font-size: 12px; color: #444; margin-top: 2px; }
+
+    /* Items table */
+    table.items { width: 100%; border-collapse: collapse; margin: 18px 0; }
+    table.items thead th { background: #059669; color: #fff; padding: 9px 12px; text-align: left; font-size: 12px; }
+    table.items tbody tr:nth-child(even) { background: #f0fdf4; }
+    table.items tbody td { padding: 8px 12px; border-bottom: 1px solid #d1fae5; font-size: 13px; }
+    .text-right { text-align: right; }
+    .total-row td { font-size: 15px; font-weight: bold; color: #059669; border-top: 2px solid #059669; padding-top: 10px; }
+
+    /* Notes */
+    .notes { margin-top: 14px; padding: 10px; background: #f0fdf4; border-left: 3px solid #059669; }
+
+    /* Footer */
+    .footer { margin-top: 36px; text-align: center; color: #888; font-size: 11px; border-top: 1px solid #d1fae5; padding-top: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <table class="header-table" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="vertical-align:top; width:50%;">
+        <div class="store-name">{{ store_name }}</div>
+        {% if store_address %}<div class="store-sub">{{ store_address }}</div>{% endif %}
+        <div class="store-sub">
+          Phone: {{ store_phone }}
+          {% if store_email %}&nbsp;|&nbsp; Email: {{ store_email }}{% endif %}
+        </div>
+      </td>
+      <td style="vertical-align:top; text-align:right; width:50%;">
+        <div class="po-label">PURCHASE ORDER</div>
+        <div class="po-meta"><strong>{{ purchase.po_number }}</strong></div>
+        <div class="po-meta">Date: {{ purchase.purchase_date|date:"d M Y" }}</div>
+        {% if purchase.invoice_number %}
+        <div class="po-meta">Supplier Ref: {{ purchase.invoice_number }}</div>
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <!-- SUPPLIER / RECORDED BY -->
+  <table width="100%" cellpadding="0" cellspacing="8">
+    <tr>
+      <td class="info-box" style="margin-right:4%;">
+        <div class="info-box-label">Supplier</div>
+        <div class="info-box-name">{{ purchase.supplier.name }}</div>
+        {% if purchase.supplier.contact_person %}<div class="info-box-sub">{{ purchase.supplier.contact_person }}</div>{% endif %}
+        <div class="info-box-sub">{{ purchase.supplier.phone }}</div>
+        {% if purchase.supplier.email %}<div class="info-box-sub">{{ purchase.supplier.email }}</div>{% endif %}
+      </td>
+      <td style="width:4%;"></td>
+      <td class="info-box">
+        <div class="info-box-label">Recorded By</div>
+        <div class="info-box-name">{{ purchase.recorded_by.get_full_name|default:purchase.recorded_by.username }}</div>
+        <div class="info-box-sub">@{{ purchase.recorded_by.username }}</div>
+        <div class="info-box-sub">Purchase Date: {{ purchase.purchase_date|date:"d M Y" }}</div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ITEMS TABLE -->
+  <table class="items" cellpadding="0" cellspacing="0">
+    <thead>
+      <tr>
+        <th style="width:5%;">#</th>
+        <th>Medicine</th>
+        <th style="width:15%;">Batch No.</th>
+        <th style="width:12%;">Expiry</th>
+        <th class="text-right" style="width:8%;">Qty</th>
+        <th class="text-right" style="width:15%;">Unit Cost</th>
+        <th class="text-right" style="width:15%;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ item.medicine.name }}</td>
+        <td>{{ item.batch_number|default:"-" }}</td>
+        <td>{% if item.expiry_date %}{{ item.expiry_date|date:"d M Y" }}{% else %}-{% endif %}</td>
+        <td class="text-right">{{ item.quantity }}</td>
+        <td class="text-right">PKR {{ item.unit_cost }}</td>
+        <td class="text-right">PKR {{ item.line_total }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td colspan="6" class="text-right"><strong>TOTAL COST</strong></td>
+        <td class="text-right"><strong>PKR {{ purchase.total_cost }}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  {% if purchase.notes %}
+  <div class="notes">
+    <strong>Notes:</strong> {{ purchase.notes }}
+  </div>
+  {% endif %}
+
+  <div class="footer">
+    <p>
+      {{ store_name }}
+      {% if store_address %} &nbsp;|&nbsp; {{ store_address }}{% endif %}
+      &nbsp;|&nbsp; {{ store_phone }}
+      {% if store_email %} &nbsp;|&nbsp; {{ store_email }}{% endif %}
+    </p>
+    <p>Generated on {% now "d M Y H:i" %}</p>
+  </div>
+
+</body>
+</html>
