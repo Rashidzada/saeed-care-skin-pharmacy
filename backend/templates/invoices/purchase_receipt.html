@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Purchase Slip {{ purchase.po_number }}</title>
+  <style>
+    @page { size: 80mm auto; margin: 5mm; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: #111827;
+      background: #ffffff;
+    }
+    .receipt {
+      width: 72mm;
+      margin: 0 auto;
+    }
+    .center { text-align: center; }
+    .store-name { font-size: 16px; font-weight: bold; }
+    .muted { color: #6b7280; font-size: 11px; }
+    .divider {
+      border-top: 1px dashed #94a3b8;
+      margin: 10px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 4px 0;
+      vertical-align: top;
+    }
+    th {
+      font-size: 11px;
+      text-align: left;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    .text-right { text-align: right; }
+    .summary td { padding: 3px 0; }
+    .strong { font-weight: bold; }
+    .footer { margin-top: 12px; text-align: center; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="center">
+      <div class="store-name">{{ store_name }}</div>
+      {% if store_address %}<div class="muted">{{ store_address }}</div>{% endif %}
+      <div class="muted">{{ store_phone }}{% if store_email %} | {{ store_email }}{% endif %}</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div><strong>PO:</strong> {{ purchase.po_number }}</div>
+    <div><strong>Date:</strong> {{ purchase.purchase_date|date:"d M Y" }}</div>
+    <div><strong>Supplier:</strong> {{ purchase.supplier.name }}</div>
+    <div><strong>Status:</strong> {{ purchase.payment_status|upper }}</div>
+
+    <div class="divider"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th class="text-right">Qty</th>
+          <th class="text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>
+            {{ item.medicine.name }}<br>
+            <span class="muted">PKR {{ item.unit_cost }}</span>
+          </td>
+          <td class="text-right">{{ item.quantity }}</td>
+          <td class="text-right">PKR {{ item.line_total }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <table class="summary">
+      <tr>
+        <td>Total</td>
+        <td class="text-right">PKR {{ purchase.total_cost }}</td>
+      </tr>
+      {% if purchase.returned_amount %}
+      <tr>
+        <td>Returned</td>
+        <td class="text-right">-PKR {{ purchase.returned_amount }}</td>
+      </tr>
+      {% endif %}
+      <tr class="strong">
+        <td>Net Total</td>
+        <td class="text-right">PKR {{ purchase.net_total_cost }}</td>
+      </tr>
+      <tr>
+        <td>Paid</td>
+        <td class="text-right">PKR {{ purchase.total_paid_amount }}</td>
+      </tr>
+      <tr class="strong">
+        <td>Outstanding</td>
+        <td class="text-right">PKR {{ purchase.outstanding_amount }}</td>
+      </tr>
+    </table>
+
+    {% if payments %}
+    <div class="divider"></div>
+    <div class="strong">Payments</div>
+    {% for payment in payments %}
+    <div class="muted">
+      {{ payment.payment_date|date:"d M H:i" }} - {{ payment.get_payment_method_display }} - PKR {{ payment.amount }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if purchase.notes %}
+    <div class="divider"></div>
+    <div><strong>Notes:</strong> {{ purchase.notes }}</div>
+    {% endif %}
+
+    <div class="divider"></div>
+    <div class="footer">
+      Supplier purchase slip
+    </div>
+  </div>
+
+  <script>
+    window.onload = function () {
+      window.print();
+    };
+  </script>
+</body>
+</html>

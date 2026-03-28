@@ -6,45 +6,35 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; font-size: 13px; color: #222; background: #fff; padding: 30px; }
-
-    /* Header */
     .header-table { width: 100%; border-bottom: 2px solid #047857; padding-bottom: 14px; margin-bottom: 20px; }
     .store-name { font-size: 22px; color: #047857; font-weight: bold; }
     .store-sub { color: #555; font-size: 12px; margin-top: 3px; }
     .inv-label { font-size: 18px; color: #047857; font-weight: bold; text-align: right; }
     .inv-meta { font-size: 12px; color: #555; text-align: right; margin-top: 3px; }
     .badge { display: inline-block; padding: 2px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background: #dcfce7; color: #166534; }
-
-    /* Info boxes */
     .info-table { width: 100%; margin: 16px 0; }
     .info-box { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 10px; width: 48%; vertical-align: top; }
     .info-box-label { font-size: 10px; text-transform: uppercase; color: #888; margin-bottom: 5px; letter-spacing: 0.5px; }
     .info-box-name { font-size: 14px; font-weight: bold; color: #1a1a1a; }
     .info-box-sub { font-size: 12px; color: #444; margin-top: 2px; }
-
-    /* Items table */
     table.items { width: 100%; border-collapse: collapse; margin: 18px 0; }
     table.items thead th { background: #047857; color: #fff; padding: 9px 12px; text-align: left; font-size: 12px; }
     table.items tbody tr:nth-child(even) { background: #f0fdf4; }
     table.items tbody td { padding: 8px 12px; border-bottom: 1px solid #d1fae5; font-size: 13px; }
     .text-right { text-align: right; }
-
-    /* Totals */
-    table.totals { width: 280px; margin-left: auto; border-collapse: collapse; margin-top: 6px; }
+    table.totals { width: 320px; margin-left: auto; border-collapse: collapse; margin-top: 6px; }
     table.totals td { padding: 5px 10px; font-size: 13px; }
     table.totals .lbl { color: #666; }
     table.totals .grand td { font-size: 16px; font-weight: bold; border-top: 2px solid #047857; padding-top: 8px; color: #047857; }
-
-    /* Notes */
+    table.history { width: 100%; border-collapse: collapse; margin-top: 18px; }
+    table.history th { background: #eff6ff; color: #1d4ed8; padding: 8px 10px; text-align: left; font-size: 11px; }
+    table.history td { padding: 8px 10px; border-bottom: 1px solid #dbeafe; font-size: 12px; }
+    .section-title { margin-top: 22px; margin-bottom: 8px; font-size: 14px; font-weight: bold; color: #0f172a; }
     .notes { margin-top: 14px; padding: 10px; background: #ecfeff; border-left: 3px solid #0f766e; }
-
-    /* Footer */
     .footer { margin-top: 36px; text-align: center; color: #888; font-size: 11px; border-top: 1px solid #d1fae5; padding-top: 12px; }
   </style>
 </head>
 <body>
-
-  <!-- HEADER -->
   <table class="header-table" cellpadding="0" cellspacing="0">
     <tr>
       <td style="vertical-align:top; width:50%;">
@@ -64,7 +54,6 @@
     </tr>
   </table>
 
-  <!-- BILL TO / PROCESSED BY -->
   <table class="info-table" cellpadding="0" cellspacing="8">
     <tr>
       <td class="info-box" style="margin-right:4%;">
@@ -87,7 +76,6 @@
     </tr>
   </table>
 
-  <!-- ITEMS TABLE -->
   <table class="items" cellpadding="0" cellspacing="0">
     <thead>
       <tr>
@@ -111,7 +99,6 @@
     </tbody>
   </table>
 
-  <!-- TOTALS -->
   <table class="totals" cellpadding="0" cellspacing="0">
     <tr>
       <td class="lbl">Subtotal</td>
@@ -127,11 +114,62 @@
       <td class="text-right">-PKR {{ sale.discount }}</td>
     </tr>
     {% endif %}
-    <tr class="grand">
-      <td><strong>GRAND TOTAL</strong></td>
-      <td class="text-right"><strong>PKR {{ sale.total_amount }}</strong></td>
+    <tr>
+      <td class="lbl">Invoice Total</td>
+      <td class="text-right">PKR {{ sale.total_amount }}</td>
     </tr>
+    {% if sale.returned_amount %}
+    <tr>
+      <td class="lbl">Returned</td>
+      <td class="text-right">-PKR {{ sale.returned_amount }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="lbl">Net Total</td>
+      <td class="text-right">PKR {{ sale.net_total_amount }}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Paid</td>
+      <td class="text-right">PKR {{ sale.total_paid_amount }}</td>
+    </tr>
+    {% if sale.credit_amount %}
+    <tr>
+      <td class="lbl">Credit Due Back</td>
+      <td class="text-right">PKR {{ sale.credit_amount }}</td>
+    </tr>
+    {% else %}
+    <tr class="grand">
+      <td><strong>OUTSTANDING</strong></td>
+      <td class="text-right"><strong>PKR {{ sale.outstanding_amount }}</strong></td>
+    </tr>
+    {% endif %}
   </table>
+
+  {% if payments %}
+  <div class="section-title">Payment History</div>
+  <table class="history" cellpadding="0" cellspacing="0">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Reference</th>
+        <th>Method</th>
+        <th>Recorded By</th>
+        <th class="text-right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for payment in payments %}
+      <tr>
+        <td>{{ payment.payment_date|date:"d M Y, H:i" }}</td>
+        <td>{{ payment.reference_number }}</td>
+        <td>{{ payment.get_payment_method_display }}</td>
+        <td>{{ payment.recorded_by.get_full_name|default:payment.recorded_by.username }}</td>
+        <td class="text-right">PKR {{ payment.amount }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
 
   {% if sale.notes %}
   <div class="notes">
@@ -140,13 +178,12 @@
   {% endif %}
 
   <div class="footer">
-    <p>Thank you for your purchase! &mdash; {{ store_name }}</p>
+    <p>Thank you for your purchase - {{ store_name }}</p>
     <p>
       {% if store_address %}{{ store_address }} &nbsp;|&nbsp; {% endif %}
       {{ store_phone }}
       {% if store_email %}&nbsp;|&nbsp; {{ store_email }}{% endif %}
     </p>
   </div>
-
 </body>
 </html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Receipt {{ sale.invoice_number }}</title>
+  <style>
+    @page { size: 80mm auto; margin: 5mm; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: #111827;
+      background: #ffffff;
+    }
+    .receipt {
+      width: 72mm;
+      margin: 0 auto;
+    }
+    .center { text-align: center; }
+    .store-name { font-size: 16px; font-weight: bold; }
+    .muted { color: #6b7280; font-size: 11px; }
+    .divider {
+      border-top: 1px dashed #94a3b8;
+      margin: 10px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 4px 0;
+      vertical-align: top;
+    }
+    th {
+      font-size: 11px;
+      text-align: left;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    .text-right { text-align: right; }
+    .summary td { padding: 3px 0; }
+    .strong { font-weight: bold; }
+    .footer { margin-top: 12px; text-align: center; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="center">
+      <div class="store-name">{{ store_name }}</div>
+      {% if store_address %}<div class="muted">{{ store_address }}</div>{% endif %}
+      <div class="muted">{{ store_phone }}{% if store_email %} | {{ store_email }}{% endif %}</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div><strong>Invoice:</strong> {{ sale.invoice_number }}</div>
+    <div><strong>Date:</strong> {{ sale.sale_date|date:"d M Y H:i" }}</div>
+    <div><strong>Customer:</strong> {% if sale.customer %}{{ sale.customer.name }}{% else %}Walk-in{% endif %}</div>
+    <div><strong>Status:</strong> {{ sale.payment_status|upper }}</div>
+
+    <div class="divider"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th class="text-right">Qty</th>
+          <th class="text-right">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>
+            {{ item.medicine.name }}<br>
+            <span class="muted">PKR {{ item.unit_price }}</span>
+          </td>
+          <td class="text-right">{{ item.quantity }}</td>
+          <td class="text-right">PKR {{ item.line_total }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <table class="summary">
+      <tr>
+        <td>Subtotal</td>
+        <td class="text-right">PKR {{ sale.subtotal }}</td>
+      </tr>
+      <tr>
+        <td>Tax</td>
+        <td class="text-right">PKR {{ sale.tax_amount }}</td>
+      </tr>
+      {% if sale.discount %}
+      <tr>
+        <td>Discount</td>
+        <td class="text-right">-PKR {{ sale.discount }}</td>
+      </tr>
+      {% endif %}
+      {% if sale.returned_amount %}
+      <tr>
+        <td>Returned</td>
+        <td class="text-right">-PKR {{ sale.returned_amount }}</td>
+      </tr>
+      {% endif %}
+      <tr class="strong">
+        <td>Net Total</td>
+        <td class="text-right">PKR {{ sale.net_total_amount }}</td>
+      </tr>
+      <tr>
+        <td>Paid</td>
+        <td class="text-right">PKR {{ sale.total_paid_amount }}</td>
+      </tr>
+      <tr class="strong">
+        <td>Outstanding</td>
+        <td class="text-right">PKR {{ sale.outstanding_amount }}</td>
+      </tr>
+    </table>
+
+    {% if payments %}
+    <div class="divider"></div>
+    <div class="strong">Payments</div>
+    {% for payment in payments %}
+    <div class="muted">
+      {{ payment.payment_date|date:"d M H:i" }} - {{ payment.get_payment_method_display }} - PKR {{ payment.amount }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if sale.notes %}
+    <div class="divider"></div>
+    <div><strong>Notes:</strong> {{ sale.notes }}</div>
+    {% endif %}
+
+    <div class="divider"></div>
+    <div class="footer">
+      Thank you for your purchase
+    </div>
+  </div>
+
+  <script>
+    window.onload = function () {
+      window.print();
+    };
+  </script>
+</body>
+</html>

@@ -96,18 +96,34 @@ export default function Reports() {
           {dailyLoading ? (
             <div className="h-32 bg-gray-100 rounded-xl animate-pulse" />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-4">
               <div className="card text-center">
-                <p className="text-sm text-gray-500">Total Revenue</p>
-                <p className="text-2xl font-bold text-emerald-700">PKR {Number(dailyData?.total_revenue || 0).toFixed(2)}</p>
+                <p className="text-sm text-gray-500">Gross Sales</p>
+                <p className="text-2xl font-bold text-slate-800">PKR {Number(dailyData?.gross_revenue || 0).toFixed(2)}</p>
+              </div>
+              <div className="card text-center border-amber-100">
+                <p className="text-sm text-gray-500">Returns</p>
+                <p className="text-2xl font-bold text-amber-700">PKR {Number(dailyData?.returns_amount || 0).toFixed(2)}</p>
+              </div>
+              <div className="card text-center">
+                <p className="text-sm text-gray-500">Net Revenue</p>
+                <p className="text-2xl font-bold text-emerald-700">PKR {Number(dailyData?.net_revenue || dailyData?.total_revenue || 0).toFixed(2)}</p>
+              </div>
+              <div className="card text-center">
+                <p className="text-sm text-gray-500">Payments Received</p>
+                <p className="text-2xl font-bold text-sky-700">PKR {Number(dailyData?.payments_received || 0).toFixed(2)}</p>
               </div>
               <div className="card text-center">
                 <p className="text-sm text-gray-500">Transactions</p>
                 <p className="text-2xl font-bold text-gray-800">{dailyData?.total_transactions || 0}</p>
+                <p className="text-xs text-gray-400 mt-1">{dailyData?.return_transactions || 0} return slips</p>
               </div>
               <div className="card text-center">
-                <p className="text-sm text-gray-500">Items Sold</p>
-                <p className="text-2xl font-bold text-gray-800">{dailyData?.total_items_sold || 0}</p>
+                <p className="text-sm text-gray-500">Net Items</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {dailyData?.net_items_sold ?? dailyData?.total_items_sold ?? 0}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">{dailyData?.items_returned || 0} returned</p>
               </div>
             </div>
           )}
@@ -116,16 +132,44 @@ export default function Reports() {
             <div className="card overflow-x-auto">
               <h3 className="font-semibold mb-3">Sales Transactions</h3>
               <table className="w-full text-sm">
-                <thead><tr className="bg-gray-50"><th className="text-left p-2">Invoice</th><th className="text-left p-2">Customer</th><th className="text-right p-2">Total</th><th className="p-2">Status</th></tr></thead>
+                <thead><tr className="bg-gray-50"><th className="text-left p-2">Invoice</th><th className="text-left p-2">Customer</th><th className="text-right p-2">Invoice</th><th className="text-right p-2">Returned</th><th className="text-right p-2">Net</th><th className="p-2">Status</th></tr></thead>
                 <tbody>
                   {dailyData.sales.map(sale => (
                     <tr key={sale.id} className="border-b border-gray-100">
                       <td className="p-2 font-mono text-xs">{sale.invoice_number}</td>
                       <td className="p-2">{sale.customer_name || 'Walk-in'}</td>
                       <td className="p-2 text-right font-medium">PKR {Number(sale.total_amount).toFixed(2)}</td>
+                      <td className="p-2 text-right text-amber-700">PKR {Number(sale.returned_amount || 0).toFixed(2)}</td>
+                      <td className="p-2 text-right font-medium text-emerald-700">PKR {Number(sale.net_total_amount || sale.total_amount).toFixed(2)}</td>
                       <td className="p-2 text-center">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${sale.payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{sale.payment_status}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          sale.payment_status === 'paid'
+                            ? 'bg-green-100 text-green-700'
+                            : sale.payment_status === 'partial'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-red-100 text-red-700'
+                        }`}>{sale.payment_status}</span>
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {dailyData?.returns?.length > 0 && (
+            <div className="card overflow-x-auto">
+              <h3 className="font-semibold mb-3 text-amber-800">Customer Returns</h3>
+              <table className="w-full text-sm">
+                <thead><tr className="bg-amber-50"><th className="text-left p-2">Return Ref</th><th className="text-left p-2">Invoice</th><th className="text-left p-2">Customer</th><th className="text-left p-2">Items</th><th className="text-right p-2">Returned Value</th></tr></thead>
+                <tbody>
+                  {dailyData.returns.map(item => (
+                    <tr key={item.id} className="border-b border-amber-100">
+                      <td className="p-2 font-mono text-xs">{item.reference_number}</td>
+                      <td className="p-2 font-mono text-xs">{item.sale_invoice_number}</td>
+                      <td className="p-2">{item.customer_name || 'Walk-in'}</td>
+                      <td className="p-2">{item.items?.map(line => `${line.medicine_name} x${line.quantity}`).join(', ')}</td>
+                      <td className="p-2 text-right font-medium text-amber-700">PKR {Number(item.total_amount).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -151,14 +195,27 @@ export default function Reports() {
 
           {monthlyLoading ? <div className="h-32 bg-gray-100 rounded-xl animate-pulse" /> : (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
                 <div className="card text-center">
-                  <p className="text-sm text-gray-500">Total Revenue</p>
-                  <p className="text-2xl font-bold text-emerald-700">PKR {Number(monthlyData?.total_revenue || 0).toFixed(2)}</p>
+                  <p className="text-sm text-gray-500">Gross Sales</p>
+                  <p className="text-2xl font-bold text-slate-800">PKR {Number(monthlyData?.gross_revenue || 0).toFixed(2)}</p>
+                </div>
+                <div className="card text-center border-amber-100">
+                  <p className="text-sm text-gray-500">Returns</p>
+                  <p className="text-2xl font-bold text-amber-700">PKR {Number(monthlyData?.returns_amount || 0).toFixed(2)}</p>
+                </div>
+                <div className="card text-center">
+                  <p className="text-sm text-gray-500">Net Revenue</p>
+                  <p className="text-2xl font-bold text-emerald-700">PKR {Number(monthlyData?.net_revenue || monthlyData?.total_revenue || 0).toFixed(2)}</p>
+                </div>
+                <div className="card text-center">
+                  <p className="text-sm text-gray-500">Payments Received</p>
+                  <p className="text-2xl font-bold text-sky-700">PKR {Number(monthlyData?.payments_received || 0).toFixed(2)}</p>
                 </div>
                 <div className="card text-center">
                   <p className="text-sm text-gray-500">Transactions</p>
                   <p className="text-2xl font-bold">{monthlyData?.total_transactions || 0}</p>
+                  <p className="text-xs text-gray-400 mt-1">{monthlyData?.return_transactions || 0} returns</p>
                 </div>
               </div>
 

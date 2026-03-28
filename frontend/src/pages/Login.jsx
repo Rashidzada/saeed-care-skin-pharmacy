@@ -5,10 +5,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
-import { Eye, EyeOff, Phone, ShieldCheck, ReceiptText } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import BrandLogo from '../components/BrandLogo'
-import { BRAND, BRAND_PHONES_TEXT } from '../config/branding'
+import { BRAND } from '../config/branding'
 
 const schema = z.object({
   username: z.string().min(1, 'Username is required'),
@@ -46,107 +46,74 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),transparent_34%),linear-gradient(135deg,#ecfdf5_0%,#f8fafc_58%,#ecfeff_100%)] flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-5xl overflow-hidden rounded-[28px] border border-emerald-100 bg-white/95 shadow-2xl shadow-emerald-950/10 backdrop-blur">
-        <div className="grid lg:grid-cols-[1.05fr,0.95fr]">
-          <section className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-emerald-800 via-teal-700 to-slate-900 px-10 py-12 text-white">
-            <div>
-              <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.25em] text-emerald-50">
-                {BRAND.storeType}
-              </span>
-              <div className="mt-8">
-                <BrandLogo variant="full" className="w-full max-w-[330px]" />
-                <p className="mt-4 max-w-md text-sm leading-6 text-emerald-50/80">{BRAND.supportText}</p>
-              </div>
+    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(45,212,191,0.12),transparent_28%),radial-gradient(circle_at_bottom,_rgba(59,130,246,0.08),transparent_24%),linear-gradient(180deg,#fcfdff_0%,#f4f7fb_100%)] px-4 py-10 sm:px-6">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-24 h-48 w-48 -translate-x-1/2 rounded-full bg-emerald-100/70 blur-3xl" />
+        <div className="absolute bottom-20 left-1/2 h-56 w-72 -translate-x-1/2 rounded-full bg-sky-100/60 blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] max-w-5xl items-center justify-center">
+        <section className="relative w-full max-w-[23rem] pt-16 sm:max-w-[25rem] sm:pt-20">
+          <div className="absolute left-1/2 top-0 z-10 w-32 -translate-x-1/2 drop-shadow-[0_20px_32px_rgba(15,118,110,0.18)] sm:w-36">
+            <BrandLogo variant="mark" className="w-full" />
+          </div>
+
+          <div className="rounded-[30px] border border-white/80 bg-white/92 px-6 pb-7 pt-16 shadow-[0_28px_90px_rgba(15,23,42,0.14)] backdrop-blur sm:px-8 sm:pb-8 sm:pt-20">
+            <div className="text-center">
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-[2rem]">
+                Sign in to continue
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-slate-500">
+                {BRAND.supportText}
+              </p>
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-3xl bg-white/10 p-5 ring-1 ring-white/15">
-                <div className="flex items-center gap-3">
-                  <Phone size={18} className="text-emerald-100" />
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-emerald-100/70">Store Contact</p>
-                    <p className="text-xs text-emerald-50/70">{BRAND.address}</p>
-                    {BRAND.phones.map((phone) => (
-                      <p key={phone} className="text-sm font-medium text-white">{phone}</p>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/10">
-                  <ShieldCheck size={18} className="text-emerald-100" />
-                  <p className="mt-3 font-medium">Staff Access</p>
-                  <p className="mt-1 text-xs text-emerald-50/70">Role-based sign in for admins and staff.</p>
-                </div>
-                <div className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/10">
-                  <ReceiptText size={18} className="text-emerald-100" />
-                  <p className="mt-3 font-medium">Daily Workflow</p>
-                  <p className="mt-1 text-xs text-emerald-50/70">Sales, purchases, inventory, and reports.</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="p-6 sm:p-8 lg:p-10">
-            <div className="mb-8 lg:hidden rounded-3xl bg-gradient-to-r from-emerald-700 to-teal-700 p-5 text-white shadow-lg shadow-emerald-950/10">
-              <BrandLogo variant="full" className="w-full max-w-[270px]" />
-            </div>
-
-            <div className="mb-8">
-              <p className="text-sm font-medium uppercase tracking-[0.25em] text-emerald-700">{BRAND.shortName}</p>
-              <h2 className="mt-2 text-3xl font-semibold text-slate-900">Sign in to continue</h2>
-              <p className="mt-2 text-sm text-slate-500">{BRAND.supportText}</p>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
               <div>
-                <label className="label">Username</label>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">Username</label>
                 <input
                   {...register('username')}
                   type="text"
-                  placeholder="Enter your username"
-                  className="input"
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 text-base text-slate-800 shadow-inner shadow-slate-100 transition-all focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-100"
                   autoFocus
                   autoComplete="username"
                 />
                 {errors.username && (
-                  <p className="text-red-500 text-xs mt-1">{errors.username.message}</p>
+                  <p className="mt-1 text-xs text-red-500">{errors.username.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="label">Password</label>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">Password</label>
                 <div className="relative">
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    className="input pr-10"
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 pr-11 text-base text-slate-800 shadow-inner shadow-slate-100 transition-all focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-100"
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+                  <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
                 )}
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 py-3.5 text-lg font-semibold text-white shadow-lg shadow-emerald-900/15 transition-all hover:from-emerald-700 hover:to-teal-800 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {loading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     Signing in...
                   </>
                 ) : (
@@ -155,25 +122,11 @@ export default function Login() {
               </button>
             </form>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Store Contact</p>
-                <p className="mt-2 text-xs text-slate-500">{BRAND.address}</p>
-                <p className="mt-1 text-sm font-medium text-slate-800">{BRAND_PHONES_TEXT}</p>
-                <p className="mt-1 text-xs text-slate-500">Updated for invoices and visible store branding.</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">Demo Credentials</p>
-                <p className="mt-2 text-xs text-slate-700">Admin: <code className="rounded bg-slate-200 px-1">admin</code> / <code className="rounded bg-slate-200 px-1">Admin@1234</code></p>
-                <p className="mt-1 text-xs text-slate-700">Staff: <code className="rounded bg-slate-200 px-1">staff</code> / <code className="rounded bg-slate-200 px-1">Staff@1234</code></p>
-              </div>
-            </div>
-
             <p className="mt-6 text-center text-xs text-slate-400">
               {BRAND.legalName}
             </p>
-          </section>
-        </div>
+          </div>
+        </section>
       </div>
     </div>
   )

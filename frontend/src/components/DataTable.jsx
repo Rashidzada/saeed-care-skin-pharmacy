@@ -1,4 +1,3 @@
-// G:/msms/frontend/src/components/DataTable.jsx
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
 
@@ -16,10 +15,10 @@ export default function DataTable({
 }) {
   const [localSearch, setLocalSearch] = useState('')
 
-  const handleSearch = (e) => {
-    const val = e.target.value
-    setLocalSearch(val)
-    if (onSearch) onSearch(val)
+  const handleSearch = (event) => {
+    const value = event.target.value
+    setLocalSearch(value)
+    if (onSearch) onSearch(value)
   }
 
   return (
@@ -55,8 +54,8 @@ export default function DataTable({
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i}>
+              Array.from({ length: 5 }).map((_, index) => (
+                <tr key={index}>
                   {columns.map((col) => (
                     <td key={col.key} className="px-4 py-3">
                       <div className="h-4 bg-gray-200 rounded animate-pulse" />
@@ -71,9 +70,9 @@ export default function DataTable({
                 </td>
               </tr>
             ) : (
-              data.map((row, idx) => (
+              data.map((row, index) => (
                 <tr
-                  key={row.id || idx}
+                  key={row.id || index}
                   className={`hover:bg-gray-50 transition-colors ${rowClassName ? rowClassName(row) : ''}`}
                 >
                   {columns.map((col) => (
@@ -91,7 +90,7 @@ export default function DataTable({
       {pagination && pagination.count > 0 && (
         <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
           <p className="text-xs text-gray-500">
-            Showing {((pagination.page - 1) * pagination.pageSize) + 1}–
+            Showing {((pagination.page - 1) * pagination.pageSize) + 1}-
             {Math.min(pagination.page * pagination.pageSize, pagination.count)} of {pagination.count}
           </p>
           <div className="flex items-center gap-1">
