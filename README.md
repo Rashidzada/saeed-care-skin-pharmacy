@@ -4,6 +4,8 @@ Full-stack pharmacy management software for **Saeed Skin Care Pharmacy**, built 
 
 The project now covers medicine inventory, point-of-sale, purchases, customer and supplier ledgers, invoice-based returns, partial and pending payments, dashboard receivables/payables, PDF invoices, compact thermal receipts, and a Flutter Windows desktop app that uses the same Django API.
 
+For a client-ready handover checklist and deployment guidance, see `CLIENT_HANDOVER_GUIDE.md`.
+
 ## What This System Handles
 
 - medicine inventory with batch, expiry, supplier, stock level, and low-stock alerts

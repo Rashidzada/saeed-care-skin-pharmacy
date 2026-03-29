@@ -1,12 +1,14 @@
 export const BRAND = {
   shortName: 'SAEED',
-  displayName: 'Saeed Skin Care Pharmacy',
-  legalName: 'Saeed Skin Care Pharmacy',
-  subtitle: 'Skin Care Pharmacy',
+  wordmarkPrimary: 'Saeed',
+  wordmarkSecondary: 'Skin Care',
+  displayName: 'Saeed Skin Care',
+  legalName: 'Saeed Skin Care',
+  subtitle: 'Pharmacy Management',
   storeType: 'Medical Store',
   address: 'Opposite RHC Hospital, Deolai Colony',
   phones: ['0318 9413433', '0346 9413433'],
-  supportText: 'Manage medicines, sales, purchases, customers, suppliers, and reports from one pharmacy workspace.',
+  supportText: 'Manage medicines, sales, purchases, customers, suppliers, and reports in one simple workspace.',
 }
 
 export const BRAND_PHONES_TEXT = BRAND.phones.join(' | ')

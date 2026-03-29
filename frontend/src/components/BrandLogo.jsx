@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { BRAND } from '../config/branding'
 
 function Emblem({ ids }) {
   return (
@@ -106,7 +107,7 @@ export default function BrandLogo({ variant = 'full', className = '' }) {
         viewBox="0 0 320 200"
         className={className}
         role="img"
-        aria-label="Saeed Skin Care Pharmacy logo"
+        aria-label={`${BRAND.displayName} logo`}
       >
         <Emblem ids={ids} />
       </svg>
@@ -118,7 +119,7 @@ export default function BrandLogo({ variant = 'full', className = '' }) {
       viewBox="0 0 520 340"
       className={className}
       role="img"
-      aria-label="Saeed Skin Care Pharmacy logo"
+      aria-label={`${BRAND.displayName} logo`}
     >
       <g transform="translate(100 0)">
         <Emblem ids={ids} />
@@ -132,7 +133,7 @@ export default function BrandLogo({ variant = 'full', className = '' }) {
         fontSize="68"
         fontWeight="700"
       >
-        Saeed
+        {BRAND.wordmarkPrimary}
       </text>
       <text
         x="260"
@@ -144,7 +145,7 @@ export default function BrandLogo({ variant = 'full', className = '' }) {
         fontStyle="italic"
         fontWeight="600"
       >
-        Skin Care Pharmacy
+        {BRAND.wordmarkSecondary}
       </text>
     </svg>
   )

@@ -4,6 +4,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+admin.site.site_header = 'Saeed Skin Care Admin'
+admin.site.site_title = 'Saeed Skin Care'
+admin.site.index_title = 'Saeed Skin Care Management'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/auth/', include('apps.accounts.urls')),

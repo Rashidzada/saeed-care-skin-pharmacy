@@ -60,8 +60,11 @@ export default function Login() {
 
           <div className="rounded-[30px] border border-white/80 bg-white/92 px-6 pb-7 pt-16 shadow-[0_28px_90px_rgba(15,23,42,0.14)] backdrop-blur sm:px-8 sm:pb-8 sm:pt-20">
             <div className="text-center">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-[2rem]">
-                Sign in to continue
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-emerald-700">
+                {BRAND.displayName}
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 sm:text-[2rem]">
+                Sign in
               </h2>
               <p className="mt-3 text-sm leading-7 text-slate-500">
                 {BRAND.supportText}
