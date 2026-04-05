@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { CreditCard, Eye, Plus, Printer, Receipt, RotateCcw, Trash2, Wallet } from 'lucide-react'
@@ -21,6 +21,8 @@ import Modal from '../components/Modal'
 
 const toNumber = (value) => Number(value || 0)
 const toCurrency = (value) => `PKR ${toNumber(value).toFixed(2)}`
+const calculatePurchaseTotal = (items = []) =>
+  items.reduce((sum, item) => sum + toNumber(item.quantity) * toNumber(item.unit_cost), 0)
 
 export default function Purchases() {
   const queryClient = useQueryClient()
@@ -64,7 +66,7 @@ export default function Purchases() {
 
   const medicines = Array.isArray(medData) ? medData : medData?.results || []
 
-  const { register, handleSubmit, control, reset, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm({
     defaultValues: {
       supplier: '',
       purchase_date: new Date().toISOString().split('T')[0],
@@ -77,15 +79,18 @@ export default function Purchases() {
     },
   })
   const { fields, append, remove } = useFieldArray({ control, name: 'items' })
-  const watchedItems = watch('items')
-  const watchedPaymentStatus = watch('payment_status')
-  const watchedAmountPaid = watch('amount_paid')
+  const watchedItems = useWatch({ control, name: 'items' }) || []
+  const watchedPaymentStatus = useWatch({ control, name: 'payment_status' }) || 'paid'
+  const watchedAmountPaid = useWatch({ control, name: 'amount_paid' })
 
   const draftTotal = useMemo(
-    () => (watchedItems || []).reduce((sum, item) => sum + toNumber(item.quantity) * toNumber(item.unit_cost), 0),
+    () => calculatePurchaseTotal(watchedItems),
     [watchedItems],
   )
   const draftPaid = useMemo(() => {
+    if (watchedPaymentStatus === 'pending') {
+      return 0
+    }
     if (watchedAmountPaid === '' || watchedAmountPaid == null) {
       return watchedPaymentStatus === 'paid' ? draftTotal : 0
     }
@@ -160,13 +165,17 @@ export default function Purchases() {
   const printReceipt = (id) => openProtectedDocument(getPurchaseReceiptUrl(id))
 
   const onSubmit = (formData) => {
-    const amountPaid = formData.amount_paid === '' || formData.amount_paid == null
-      ? (formData.payment_status === 'paid' ? draftTotal : 0)
-      : Number(formData.amount_paid)
-    if (amountPaid > draftTotal) return toast.error('Amount paid cannot exceed the purchase total')
-    if (formData.payment_status === 'paid' && amountPaid < draftTotal) return toast.error('Paid purchases must have the full amount recorded')
+    const purchaseTotal = calculatePurchaseTotal(formData.items || [])
+    const amountPaid = formData.payment_status === 'pending'
+      ? 0
+      : formData.amount_paid === '' || formData.amount_paid == null
+        ? (formData.payment_status === 'paid' ? purchaseTotal : 0)
+        : Number(formData.amount_paid)
+    if (purchaseTotal <= 0) return toast.error('Add at least one line item with quantity and unit cost')
+    if (amountPaid > purchaseTotal) return toast.error('Amount paid cannot exceed the purchase total')
+    if (formData.payment_status === 'paid' && amountPaid < purchaseTotal) return toast.error('Paid purchases must have the full amount recorded')
     if (formData.payment_status === 'pending' && amountPaid > 0) return toast.error('Pending purchases should not have a payment recorded. Use partial instead.')
-    if (formData.payment_status === 'partial' && (amountPaid <= 0 || amountPaid >= draftTotal)) return toast.error('Partial payment must be more than zero and less than the purchase total')
+    if (formData.payment_status === 'partial' && (amountPaid <= 0 || amountPaid >= purchaseTotal)) return toast.error('Partial payment must be more than zero and less than the purchase total')
     createMut.mutate({
       ...formData,
       supplier: Number(formData.supplier),
@@ -297,8 +306,46 @@ export default function Purchases() {
             </div>
             <div><label className="label">Purchase Date *</label><input {...register('purchase_date', { required: true })} type="date" className="input" /></div>
             <div><label className="label">Supplier Invoice #</label><input {...register('invoice_number')} className="input" placeholder="Supplier's invoice reference" /></div>
-            <div><label className="label">Payment Status</label><select {...register('payment_status')} className="input"><option value="paid">Paid</option><option value="partial">Partial</option><option value="pending">Pending</option></select></div>
-            <div><label className="label">Amount Paid Now (PKR)</label><input {...register('amount_paid')} type="number" step="0.01" min="0" className="input" placeholder={watchedPaymentStatus === 'partial' ? 'Enter payment made now' : '0.00'} /></div>
+            <div>
+              <label className="label">Payment Status</label>
+              <select
+                {...register('payment_status', {
+                  onChange: (event) => {
+                    if (event.target.value === 'pending') {
+                      setValue('amount_paid', '')
+                    }
+                  },
+                })}
+                className="input"
+              >
+                <option value="paid">Paid</option>
+                <option value="partial">Partial</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Amount Paid Now (PKR)</label>
+              <input
+                {...register('amount_paid')}
+                type="number"
+                step="0.01"
+                min="0"
+                disabled={watchedPaymentStatus === 'pending'}
+                className={`input ${watchedPaymentStatus === 'pending' ? 'cursor-not-allowed bg-slate-100 text-slate-400' : ''}`}
+                placeholder={
+                  watchedPaymentStatus === 'partial'
+                    ? 'Enter payment made now'
+                    : watchedPaymentStatus === 'paid'
+                      ? 'Leave blank to use full total'
+                      : 'Pending purchases keep this at zero'
+                }
+              />
+              {watchedPaymentStatus === 'pending' && (
+                <p className="mt-1 text-xs text-slate-500">
+                  Pending purchases do not record a payment. Use Partial if you already paid something.
+                </p>
+              )}
+            </div>
             <div><label className="label">Payment Method</label><select {...register('payment_method')} className="input"><option value="cash">Cash</option><option value="card">Card</option><option value="bank_transfer">Bank Transfer</option><option value="easypaisa">Easypaisa</option><option value="jazzcash">JazzCash</option><option value="other">Other</option></select></div>
           </div>
 
@@ -321,8 +368,8 @@ export default function Purchases() {
               {fields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-6 gap-2 bg-gray-50 p-2 rounded-lg items-end">
                   <div className="col-span-2"><label className="text-xs text-gray-500">Medicine</label><select {...register(`items.${index}.medicine`, { required: true })} className="input text-xs"><option value="">Select...</option>{medicines.map((medicine) => <option key={medicine.id} value={medicine.id}>{medicine.name}</option>)}</select></div>
-                  <div><label className="text-xs text-gray-500">Qty</label><input {...register(`items.${index}.quantity`, { min: 1 })} type="number" min="1" className="input text-xs" placeholder="1" /></div>
-                  <div><label className="text-xs text-gray-500">Unit Cost (PKR)</label><input {...register(`items.${index}.unit_cost`, { required: true })} type="number" step="0.01" className="input text-xs" placeholder="0.00" /></div>
+                  <div><label className="text-xs text-gray-500">Qty</label><input {...register(`items.${index}.quantity`, { min: 1, valueAsNumber: true })} type="number" min="1" className="input text-xs" placeholder="1" /></div>
+                  <div><label className="text-xs text-gray-500">Unit Cost (PKR)</label><input {...register(`items.${index}.unit_cost`, { required: true, valueAsNumber: true })} type="number" step="0.01" className="input text-xs" placeholder="0.00" /></div>
                   <div><label className="text-xs text-gray-500">Batch #</label><input {...register(`items.${index}.batch_number`)} className="input text-xs" placeholder="Optional" /></div>
                   <div className="flex gap-1 items-end">
                     <div className="flex-1"><label className="text-xs text-gray-500">Expiry</label><input {...register(`items.${index}.expiry_date`)} type="date" className="input text-xs" /></div>
