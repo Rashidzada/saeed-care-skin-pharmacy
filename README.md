@@ -233,7 +233,7 @@ Current store configuration:
 
 - Store name: `Saeed Skin Care Pharmacy`
 - Address: `Opposite RHC Hospital, Deolai Colony`
-- Contact: `0318 9413433 | 0346 9413433`
+- Contact: `0300 0000000 | 0300 1111111`
 
 These values are used in the branded UI, invoices, receipts, and WhatsApp summaries.
 
@@ -252,7 +252,7 @@ These values are used in the branded UI, invoices, receipts, and WhatsApp summar
 | `VITE_API_BASE_URL` | Frontend API base URL | `http://localhost:8000` |
 | `STORE_NAME` | Store name for invoices | `Saeed Skin Care Pharmacy` |
 | `STORE_ADDRESS` | Store address | `Opposite RHC Hospital, Deolai Colony` |
-| `STORE_PHONE` | Store contact numbers | `0318 9413433 | 0346 9413433` |
+| `STORE_PHONE` | Store contact numbers | `0300 0000000 | 0300 1111111` |
 | `STORE_EMAIL` | Store email for invoices | optional |
 
 ## API Highlights

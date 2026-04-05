@@ -7,7 +7,7 @@ export const BRAND = {
   subtitle: 'Pharmacy Management',
   storeType: 'Medical Store',
   address: 'Opposite RHC Hospital, Deolai Colony',
-  phones: ['0318 9413433', '0346 9413433'],
+  phones: ['0300 0000000', '0300 1111111'],
   supportText: 'Manage medicines, sales, purchases, customers, suppliers, and reports in one simple workspace.',
 }
 

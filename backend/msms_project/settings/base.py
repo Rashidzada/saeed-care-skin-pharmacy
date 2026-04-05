@@ -129,5 +129,5 @@ SIMPLE_JWT = {
 # Store configuration (used in invoices)
 STORE_NAME = config('STORE_NAME', default='Saeed Skin Care Pharmacy')
 STORE_ADDRESS = config('STORE_ADDRESS', default='Opposite RHC Hospital, Deolai Colony')
-STORE_PHONE = config('STORE_PHONE', default='0318 9413433 | 0346 9413433')
+STORE_PHONE = config('STORE_PHONE', default='0300 0000000 | 0300 1111111')
 STORE_EMAIL = config('STORE_EMAIL', default='')
