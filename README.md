@@ -1,8 +1,8 @@
 # Saeed Skin Care Pharmacy
 
-Full-stack pharmacy management software for **Saeed Skin Care Pharmacy**, built for daily store operations across web and Windows desktop.
+Full-stack pharmacy management software for **Saeed Skin Care Pharmacy**, built for daily store operations through a web application.
 
-The project now covers medicine inventory, point-of-sale, purchases, customer and supplier ledgers, invoice-based returns, partial and pending payments, dashboard receivables/payables, PDF invoices, compact thermal receipts, and a Flutter Windows desktop app that uses the same Django API.
+The project now covers medicine inventory, point-of-sale, purchases, customer and supplier ledgers, invoice-based returns, partial and pending payments, dashboard receivables/payables, PDF invoices, and compact thermal receipts.
 
 For a client-ready handover checklist and deployment guidance, see `CLIENT_HANDOVER_GUIDE.md`.
 
@@ -18,7 +18,6 @@ For a client-ready handover checklist and deployment guidance, see `CLIENT_HANDO
 - dashboard visibility for daily sales, receivables, payables, low stock, and reporting
 - printable full invoices plus compact thermal-style receipts
 - WhatsApp-ready balance summary actions for customers and suppliers
-- Windows desktop workflow for pharmacy staff using the same backend and data
 
 ## Main Features
 
@@ -64,7 +63,7 @@ For a client-ready handover checklist and deployment guidance, see `CLIENT_HANDO
 
 - JWT-based authentication with refresh-token session restore
 - role-based access for admin, staff, and viewer roles
-- branded login screens for both the web app and the Windows desktop app
+- branded login screens for the web app
 - admin user management and activation controls
 
 ## Applications Included
@@ -74,19 +73,11 @@ For a client-ready handover checklist and deployment guidance, see `CLIENT_HANDO
 - React + Vite frontend for browser-based pharmacy operations
 - optimized for daily staff workflows on desktop browsers
 
-### Windows Desktop Application
-
-- Flutter Windows app in `windows_application/`
-- shares the same backend, authentication, and pharmacy workflows
-- includes dashboard, medicines, customers, suppliers, sales, purchases, reports, and user management screens
-- supports sales and purchases history, payment recording, and the updated simplified login UI
-
 ## Tech Stack
 
 | Layer | Technology |
 | --- | --- |
 | Web Frontend | React 18, Vite, Tailwind CSS, React Query, React Hook Form, Zod, Recharts |
-| Desktop Frontend | Flutter, Provider, Dio, fl_chart |
 | Backend | Django 4.2, Django REST Framework, Simple JWT |
 | Database | PostgreSQL |
 | Auth | JWT access and refresh tokens |
@@ -116,11 +107,7 @@ msms/
 |     |- context/
 |     |- pages/
 |     `- utils/
-|- windows_application/
-|  |- lib/
-|  `- windows/
 |- start.bat
-|- start_windows_application.bat
 |- docker-compose.yml
 `- nginx.conf
 ```
@@ -136,11 +123,9 @@ msms/
 - `Suppliers` - supplier records, pending payables, full ledger history, and WhatsApp summaries
 - `Reports` - daily, monthly, stock, and expiry reports
 - `User Management` - role-based user administration
-- `Windows Desktop App` - same operational modules for local desktop use
-
 ## Quick Start
 
-### Option 1: Start the web system on Windows
+### Start the web system on Windows
 
 Double-click:
 
@@ -153,30 +138,7 @@ This starts:
 - backend at `http://localhost:8000`
 - frontend at `http://localhost:5151`
 
-### Option 2: Start the Windows desktop app
-
-Build the desktop app once:
-
-```powershell
-cd windows_application
-flutter pub get
-flutter build windows --release
-```
-
-Then launch:
-
-```text
-start_windows_application.bat
-```
-
-The launcher:
-
-- checks for a release Windows executable
-- starts the Django backend on port `8000` if needed
-- forces `DEBUG=True` for the launcher-started backend process
-- opens the Windows desktop application
-
-### Option 3: Manual local development
+### Manual local development
 
 #### Backend
 
@@ -204,15 +166,7 @@ Web URL:
 http://localhost:5151
 ```
 
-#### Flutter Windows app
-
-```powershell
-cd windows_application
-flutter pub get
-flutter run -d windows
-```
-
-### Option 4: Docker
+### Docker
 
 ```powershell
 docker-compose up --build
@@ -233,7 +187,7 @@ After seeding sample data, the project includes:
 | Admin | `admin` | `Admin@1234` |
 | Staff | `staff` | `Staff@1234` |
 
-These credentials work against both the web frontend and the Windows desktop app because they share the same backend.
+These credentials work against the web frontend and backend API after seeding sample data.
 
 ## Payment and Return Workflow
 
@@ -367,12 +321,6 @@ cd frontend
 npm run build
 ```
 
-```powershell
-cd windows_application
-flutter analyze
-flutter build windows --release
-```
-
 ## Troubleshooting
 
 ### Web login fails
@@ -384,27 +332,10 @@ Check:
 - PostgreSQL is available
 - sample data has been seeded if you are using default credentials
 
-### Windows app opens but cannot connect
-
-Check:
-
-- backend is running on `http://127.0.0.1:8000` or `http://localhost:8000`
-- the desktop app was built after the latest Flutter changes
-- firewall rules are not blocking the local backend
-
-### Launcher says the Windows executable is missing
-
-Build the release executable first:
-
-```powershell
-cd windows_application
-flutter build windows --release
-```
-
 ### Browser refresh logs the user out
 
 The project already includes refresh-token rotation and session restore. If this still happens after a change, clear the browser session and log in again.
 
 ## Repository Purpose
 
-This repository contains the customized pharmacy management system for **Saeed Skin Care Pharmacy**, with both browser and Windows desktop clients, real-world billing and return workflows, and documentation for local development and deployment.
+This repository contains the customized pharmacy management system for **Saeed Skin Care Pharmacy**, with browser-based workflows, real-world billing and return processes, and documentation for local development and deployment.
