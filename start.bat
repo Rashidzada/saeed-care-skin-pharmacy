@@ -7,6 +7,24 @@ if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 set "BACKEND_DIR=%ROOT%\backend"
 set "FRONTEND_DIR=%ROOT%\frontend"
 set "BACKEND_PY=%BACKEND_DIR%\venv\Scripts\python.exe"
+set "ENV_FILE=%ROOT%\.env"
+
+if not exist "%ENV_FILE%" (
+  if exist "%ROOT%\.env.example" (
+    copy /Y "%ROOT%\.env.example" "%ENV_FILE%" >nul
+    echo [INFO] Created .env from .env.example.
+  )
+)
+
+if exist "%ENV_FILE%" (
+  echo [INFO] Loading environment from .env...
+  for /f "usebackq eol=# tokens=1,* delims==" %%A in ("%ENV_FILE%") do (
+    if not "%%~A"=="" set "%%~A=%%~B"
+  )
+)
+
+if not defined DEBUG set "DEBUG=True"
+if not defined VITE_API_BASE_URL set "VITE_API_BASE_URL=http://localhost:8000"
 
 if not exist "%BACKEND_DIR%\manage.py" (
   echo [ERROR] Backend folder not found at "%BACKEND_DIR%".
@@ -41,7 +59,7 @@ if defined BACKEND_PID (
   echo [INFO] Backend already running on port 8000 ^(PID %BACKEND_PID%^).
 ) else (
   echo [INFO] Starting backend...
-  start "MSMS Backend" cmd /k "cd /d ""%BACKEND_DIR%"" && ""%BACKEND_PY%"" manage.py runserver 0.0.0.0:8000 --noreload"
+  start "MSMS Backend" cmd /k "cd /d ""%BACKEND_DIR%"" && set DJANGO_SETTINGS_MODULE=msms_project.settings.dev&& ""%BACKEND_PY%"" manage.py runserver 0.0.0.0:8000 --noreload"
 )
 
 set "FRONTEND_PID="
